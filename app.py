@@ -11,8 +11,7 @@ from PIL import Image
 
 st.write("2030 강서 주말 영어회화")
 st.write("하이강서 @마곡나루")
-st.write("> 그룹 편성 Randomizer")
-st.divider()
+st.write("> 그룹 편성 Randomizer *by James*")
 
 guide_text = """
 * 소모임 어플에서 참여 멤버 리스트를 캡쳐 후, 아래에서 이미지들을 업로드 해주세요. \n \n
@@ -39,7 +38,7 @@ if st.button(f" :sunglasses: **[ Randomizer 사용 가이드 *Click Here* ]** :s
         st.write(f" 2) 1부 끝나고 Update Attendance에서 출석 업데이트 후,")
         st.write(f" 3) 마스킹 안된 원본 이미지로 Randomizer 실행")
         st.write(f" ")
-
+st.divider()
 
 
 tab1, tab2 = st.tabs(["Group Randomizer", "Update Attendance"])
