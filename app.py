@@ -26,7 +26,7 @@ def stream_data():
         yield word + " "
         time.sleep(0.02)
 
-if st.button(f" :sunglasses: **[ Randomizer 사용 가이드 보기 ]** :sunglasses:"):
+if st.button(f" :sunglasses: **[ Randomizer 사용 가이드 *Click Here* ]** :sunglasses:"):
     st.write_stream(stream_data)
     st.write(f" ")
     with st.expander("* 1부만 참여하는 인원 있을경우 "):
