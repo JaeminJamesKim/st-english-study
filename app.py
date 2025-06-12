@@ -7,6 +7,7 @@ import time
 import streamlit as st
 from main import main
 from common.utils import save_updated_attendance
+from PIL import Image
 
 st.write("2030 강서 주말 영어회화")
 st.write("하이강서 @마곡나루")
@@ -25,9 +26,13 @@ with tab1:
     )
 
     file_list = []
-    for uploaded_file in uploaded_files:
-        bytes_data = uploaded_file.read()
-        file_list.append(uploaded_file.name)
+    for i, uploaded_file in enumerate(uploaded_files):
+        # bytes_data = uploaded_file.read()
+        # file_list.append(uploaded_file.name)
+        # file_list.append(bytes_data)
+        image = Image.open(uploaded_file)
+        image.save(f"{i}.jpg")
+        file_list.append(f"{i}.jpg")
 
     left, left1, middle, middle1, right, right1 = st.columns(6)
     if right1.button("Submit", type='secondary', icon="🚨", key='randomizer_button'):
