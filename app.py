@@ -5,7 +5,7 @@ import pandas as pd
 import os
 import time
 import streamlit as st
-import datetime
+from datetime import datetime
 from main import main
 from common.utils import save_updated_attendance, compare_and_update_member_list_excel
 from PIL import Image
