@@ -6,7 +6,7 @@ import os
 import time
 import streamlit as st
 from main import main
-from common.utils import save_updated_attendance
+from common.utils import save_updated_attendance, compare_and_update_member_list_excel
 from PIL import Image
 
 st.write("2030 강서 주말 영어회화")
@@ -64,6 +64,10 @@ with tab1:
         st.divider()
         st.write(f" ")
         with st.spinner("Wait for it...", show_time=True):
+            new_members = compare_and_update_member_list_excel()
+            st.write(f"▶ {date} 전체 멤버 리스트 업데이트 완료")
+            st.write(f"오늘의 신규 멤버: {", ".join(new_members)}")
+            st.divider()
             grp_dict = main(date, file_list)
             st.write(f"▶ {date} 그룹 편성 결과")
             for k, members in grp_dict.items():
