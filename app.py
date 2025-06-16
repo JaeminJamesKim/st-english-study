@@ -12,7 +12,6 @@ from PIL import Image
 
 st.write("2030 강서 주말 영어회화")
 st.write(f"하이강서 @마곡나루")
-st.write("하이강서 @마곡나루")
 st.write("> 그룹 편성 Randomizer *by James*")
 st.markdown("""
 <style>
