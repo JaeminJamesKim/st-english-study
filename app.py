@@ -13,12 +13,12 @@ from PIL import Image
 st.markdown("""
 <style>
 .small-font {
-    font-size:15px !important;
+    font-size:10px !important;
 }
 </style>
 """, unsafe_allow_html=True)
 today_date = datetime.today().strftime('%Y-%m-%d')
-st.markdown(f'> <p class="small-font">Last Updated: {today_date}</p>', unsafe_allow_html=True)
+st.markdown(f'<p class="small-font">Last Updated: {today_date}</p>', unsafe_allow_html=True)
 st.write("2030 강서 주말 영어회화")
 st.write(f"하이강서 @마곡나루")
 st.write("> 그룹 편성 Randomizer *by James*")
