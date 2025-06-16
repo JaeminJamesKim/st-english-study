@@ -5,13 +5,23 @@ import pandas as pd
 import os
 import time
 import streamlit as st
+import datetime
 from main import main
 from common.utils import save_updated_attendance, compare_and_update_member_list_excel
 from PIL import Image
 
 st.write("2030 강서 주말 영어회화")
+st.write(f"하이강서 @마곡나루")
 st.write("하이강서 @마곡나루")
 st.write("> 그룹 편성 Randomizer *by James*")
+st.markdown("""
+<style>
+.small-font {
+    font-size:10px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+st.markdown(f'> <p class="small-font">Last Updated: {datetime.today().strftime('%Y-%m-%d')}</p>', unsafe_allow_html=True)
 
 guide_text = """
 * 소모임 어플에서 참여 멤버 리스트를 캡쳐 후, 아래에서 이미지들을 업로드 해주세요. \n \n
