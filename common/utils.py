@@ -80,16 +80,20 @@ def get_current_all_members():
 def compare_and_update_member_list_excel(curr_member_name_lst):
     member_list = pd.read_excel('member_list.xlsx')
     new_members = [n for n in curr_member_name_lst if n not in set(member_list["names"])]
+    resigned_members = [n for n in member_list["names"] if n not in set(curr_member_name_lst)]
     if len(new_members) == 0:
         new_members = ['없음','']
+    if len(resigned_members) == 0:
+        resigned_members = ['없음','']
     for member_name in curr_member_name_lst:
         if member_name not in member_list['name']:
             member_list.loc[len(member_list)] = [member_name, 'M', 0, '하', False]
     member_list = member_list[member_list["name"].isin(curr_member_name_lst)].reset_index(drop=True)
-    member_list.to_excel('member_list.xlsx')
+    ########## 릴리즈 시 주석 해제 ##########
+    # member_list.to_excel('member_list.xlsx')
     
     print('>> [UPDATE COMPLETE] member_list.xlsx')
-    return new_members
+    return new_members, resigned_members
 
 def _as_data_url(path: str) -> str:
     """파일을 data:<mime>;base64,<b64> 형태로 변환"""

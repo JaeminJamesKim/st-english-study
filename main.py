@@ -27,7 +27,7 @@ def main(TODAY, imgs):
     ## 소모임 전체 멤버 리스트 가져오기 (운영진, 전체 멤버)
     board_members, total_members = get_current_all_members()
     ## 전체 멤버 리스트 업데이트하고 신규멤버 반환
-    new_members = compare_and_update_member_list_excel(total_members)
+    new_members, resigned_members = compare_and_update_member_list_excel(total_members)
     ## 이번 모임 출석 멤버 input (from captures)
     curr_participants = extract_member_names(*imgs)
     # print(f'{curr_participants=}')
@@ -38,7 +38,7 @@ def main(TODAY, imgs):
     grp_dict = build_groups_cpsat(today_df)
     # print(f'{grp_dict=}')
     output = print_output(TODAY, grp_dict)
-    return grp_dict, new_members
+    return grp_dict, new_members, resigned_members
 
 
 
