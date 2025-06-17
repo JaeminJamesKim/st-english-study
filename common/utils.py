@@ -84,9 +84,9 @@ def compare_and_update_member_list_excel(curr_member_name_lst):
     new_members = [n for n in curr_member_name_lst if n not in set(member_list["name"])]
     resigned_members = [n for n in member_list["name"] if n not in set(curr_member_name_lst)]
     if len(new_members) == 0:
-        new_members = ['없음','']
+        new_members = ['없음']
     if len(resigned_members) == 0:
-        resigned_members = ['없음','']
+        resigned_members = ['없음']
     for member_name in curr_member_name_lst:
         if member_name not in member_list['name']:
             member_list.loc[len(member_list)] = [member_name, 'M', 0, '하', False]

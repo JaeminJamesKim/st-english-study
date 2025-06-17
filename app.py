@@ -95,8 +95,8 @@ with tab1:
         st.write(f" ")
         with st.spinner("Wait for it...", show_time=True):
             grp_dict, new_members, resigned_members = main(date, file_list, driver)
-            new_member_list = (", ".join(new_members))[:-1]
-            resigned_members = (", ".join(resigned_members))[:-1]
+            new_member_list = (", ".join(new_members))
+            resigned_members = (", ".join(resigned_members))
             st.write(f"▶ {date} 멤버 리스트 업데이트 완료")
             st.write(f"오늘의 신규 멤버: **{new_member_list}**")
             st.write(f"탈퇴한 기존 멤버: **{resigned_members}**")
