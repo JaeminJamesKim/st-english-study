@@ -34,6 +34,8 @@ def get_current_all_members(driver):
 
     # 2) Open the page
     driver.get(page_url)
+    driver.close()
+    driver.quit()
     time.sleep(2)
 
     # ————— click your button —————
