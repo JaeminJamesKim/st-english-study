@@ -10,6 +10,11 @@ from main import main
 from common.utils import save_updated_attendance, compare_and_update_member_list_excel
 from PIL import Image
 
+@st.experimental_singleton
+def installff():
+  os.system('sbase install geckodriver')
+  os.system('ln -s /home/appuser/venv/lib/python3.7/site-packages/seleniumbase/drivers/geckodriver /home/appuser/venv/bin/geckodriver')
+
 st.markdown("""
 <style>
 .small-font {
@@ -76,9 +81,11 @@ with tab1:
         st.write(f" ")
         with st.spinner("Wait for it...", show_time=True):
             grp_dict, new_members, resigned_members = main(date, file_list)
+            new_member_list = ", ".join(new_members)
+            resigned_members = ", ".join(resigned_members)
             st.write(f"▶ {date} 멤버 리스트 업데이트 완료")
-            st.write(f"오늘의 신규 멤버: {", ".join(new_members)}")
-            st.write(f"탈퇴한 기존 멤버: {", ".join(resigned_members)}")
+            st.write(f"오늘의 신규 멤버: {new_member_list}")
+            st.write(f"탈퇴한 기존 멤버: {resigned_members}")
             st.divider()
             st.write(f"▶ {date} 그룹 편성 결과")
             for k, members in grp_dict.items():
