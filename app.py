@@ -20,11 +20,9 @@ from selenium.webdriver.chrome.service import Service
 def get_driver():
     options = Options()
     options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
+    # options.add_argument("--disable-gpu")
+    options.add_argument("--single-process")
     driver = webdriver.Chrome(options=options)
-    options = Options()
-    options.add_argument("--disable-gpu")
-    options.add_argument("--headless")
     return driver
 
 driver = get_driver()
