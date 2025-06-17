@@ -79,8 +79,8 @@ def get_current_all_members(driver):
 # 성별을 수동으로 업데이트 해줘야함: Default 'M'으로 설정
 def compare_and_update_member_list_excel(curr_member_name_lst):
     member_list = pd.read_excel('member_list.xlsx')
-    new_members = [n for n in curr_member_name_lst if n not in set(member_list["names"])]
-    resigned_members = [n for n in member_list["names"] if n not in set(curr_member_name_lst)]
+    new_members = [n for n in curr_member_name_lst if n not in set(member_list["name"])]
+    resigned_members = [n for n in member_list["name"] if n not in set(curr_member_name_lst)]
     if len(new_members) == 0:
         new_members = ['없음','']
     if len(resigned_members) == 0:
