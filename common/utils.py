@@ -21,16 +21,16 @@ load_dotenv()
 client = OpenAI()                     # 환경변수 OPENAI_API_KEY 사용
 
 
-def get_current_all_members():
+def get_current_all_members(driver):
     '''
     ## 1. 현재 총 멤버 업데이트 (from Somoim)
     '''
     page_url = 'https://www.somoim.co.kr/95381bac-d344-11ec-ba98-0a4d683471cd1'
 
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    driver = webdriver.Chrome(options=options)
+    # options = Options()
+    # options.add_argument("--headless")
+    # options.add_argument("--disable-gpu")
+    # driver = webdriver.Chrome(options=options)
 
     # 2) Open the page
     driver.get(page_url)

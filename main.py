@@ -23,9 +23,9 @@ from common.utils import *
 
 
 
-def main(TODAY, imgs):
+def main(TODAY, imgs, driver):
     ## 소모임 전체 멤버 리스트 가져오기 (운영진, 전체 멤버)
-    board_members, total_members = get_current_all_members()
+    board_members, total_members = get_current_all_members(driver)
     ## 전체 멤버 리스트 업데이트하고 신규멤버 반환
     new_members, resigned_members = compare_and_update_member_list_excel(total_members)
     ## 이번 모임 출석 멤버 input (from captures)

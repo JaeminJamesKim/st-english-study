@@ -14,21 +14,21 @@ with st.echo():
     from selenium import webdriver
     from selenium.webdriver.chrome.options import Options
     from selenium.webdriver.chrome.service import Service
-    from webdriver_manager.chrome import ChromeDriverManager
-    from webdriver_manager.core.os_manager import ChromeType
+    # from webdriver_manager.chrome import ChromeDriverManager
+    # from webdriver_manager.core.os_manager import ChromeType
 
     @st.cache_resource
     def get_driver():
-        return webdriver.Chrome(
-            service=Service(
-                ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()
-            ),
-            options=options,
-        )
-
-    options = Options()
-    options.add_argument("--disable-gpu")
-    options.add_argument("--headless")
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        driver = webdriver.Chrome(options=options)
+        options = Options()
+        options.add_argument("--disable-gpu")
+        options.add_argument("--headless")
+        return driver
+    
+    driver = get_driver()
 
     st.markdown("""
     <style>
@@ -95,7 +95,7 @@ with st.echo():
             st.divider()
             st.write(f" ")
             with st.spinner("Wait for it...", show_time=True):
-                grp_dict, new_members, resigned_members = main(date, file_list)
+                grp_dict, new_members, resigned_members = main(date, file_list, driver)
                 new_member_list = ", ".join(new_members)
                 resigned_members = ", ".join(resigned_members)
                 st.write(f"▶ {date} 멤버 리스트 업데이트 완료")
