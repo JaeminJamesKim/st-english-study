@@ -113,6 +113,7 @@ def extract_member_names(*image_paths):
             "text":(
                 "아래 이미지들에 적힌 유저 이름만 파이썬 리스트 형태로 반환해줘.\n"
                 "유저의 이름은 굵은 글씨로 되어있으니까, 모든 굵은 글씨들을 반환해줘.\n"
+                "중간 중간 비어있는 열이 있더라도 그냥 무시하고 나머지 이름들을 반환해줘.\n"
                 "반드시 다음 예시 형식만 출력: [\"석종훈\", \"박제용\", \"A.T\", \"James\"]\n"
                 "리스트 외의 설명·줄바꿈·불필요 문자 모두 금지."
             )
@@ -246,7 +247,7 @@ def build_groups_cpsat(df):
     # ① 모든 인원(행) 한 그룹
     for i in I:
         mdl.Add(sum(x[i,g] for g in Gs) == 1)
-        
+
     # # ① 모든 인원 한 그룹
     # for i in I: mdl.Add(sum(x[i,g] for g in Gs) == 1)
 
