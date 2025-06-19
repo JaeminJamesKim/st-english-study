@@ -39,7 +39,8 @@ def main(TODAY, imgs, driver):
     grp_dict = build_groups(today_df)
     # print(f'{grp_dict=}')
     member_name_lst = print_output(TODAY, grp_dict)
-    missing_members = [x for x in curr_participants if x not in member_name_lst]
+    missing_members = check_missing_member(curr_participants, member_name_lst)
+
 
     return grp_dict, new_members, resigned_members, missing_members
 
