@@ -338,63 +338,55 @@ def build_groups(df, timelimit=60, workers=8):
     G = choose_group_count(n)
     I, Gs = range(n), range(G)
 
-    # 특성 추출
+    # ===== 특성 =====
     admin  = df['is_admin'].astype(int).tolist()
     leader = (df['is_admin'] | (df['english'] == '상')).astype(int).tolist()
     new    = df['is_new'].astype(int).tolist()
     male   = (df['gender'] == 'M').astype(int).tolist()
-    eng_lv = df['english'].map({'상': 2, '중': 1, '하': 0}).tolist()
     prev1  = df.get('prev_group_code1', '')
     prev2  = df.get('prev_group_code2', '')
+    prev3  = df.get('prev_group_code3', '')
 
     mdl = cp_model.CpModel()
     x   = {(i, g): mdl.NewBoolVar(f'x_{i}_{g}') for i in I for g in Gs}
 
-    # ===== 0) 이름 중복 절대 금지 =====
+    # 0) --- 이름 중복 절대 금지 ---
     for rows in df.groupby('name').groups.values():
         if len(rows) > 1:
             mdl.Add(sum(x[i, g] for i in rows for g in Gs) <= 1)
 
-    # ===== 1) 각 행(개인) 정확히 한 그룹 =====
+    # 1) --- 각 사람 하나의 그룹 ---
     for i in I:
         mdl.Add(sum(x[i, g] for g in Gs) == 1)
 
-    # ===== 2) 그룹 인원 =====
-    size      = [mdl.NewIntVar(2, 5, f'size_{g}') for g in Gs]
-    dev_size  = [mdl.NewIntVar(0, 3, f'devsz_{g}') for g in Gs]
-    three_cnt = mdl.NewIntVar(0, 2, 'three_cnt')        # 3명 그룹 ≤ 2
+    # 2) --- 그룹 인원 및 dev_size ---
+    size      = [mdl.NewIntVar(3, 4, f'size_{g}')  for g in Gs]
+    dev_size  = [mdl.NewIntVar(0, 1, f'devsz_{g}') for g in Gs]
 
     for g in Gs:
         mdl.Add(size[g] == sum(x[i, g] for i in I))
-        mdl.Add(dev_size[g] >=  size[g] - 4)
-        mdl.Add(dev_size[g] >= -size[g] + 4)
-        # size == 3 → dev==1 → (4-size)==1로 집계
-        mdl.Add(size[g] == 3).OnlyEnforceIf(dev_size[g] == 1)
-    mdl.Add(three_cnt == sum(mdl.NewBoolVar(f'is_three_{g}')
-                            for g in Gs))
-    # (is_three == 1) ⇔ size == 3
-    for g in Gs:
-        is_three = mdl.NewBoolVar(f'is_three_{g}')
-        mdl.Add(size[g] == 3).OnlyEnforceIf(is_three)
-        mdl.Add(size[g] != 3).OnlyEnforceIf(is_three.Not())
-    mdl.Add(three_cnt <= 2)
+        # dev_size = 4 - size   ⇒  size 4→dev0, size3→dev1
+        mdl.Add(size[g] + dev_size[g] == 4)
 
-    # ===== 3) 신규 → 운영진 (slack 허용) =====
+    # 3명 그룹 ≤ 2개 (dev==1 이 2개 이하)
+    mdl.Add(sum(dev_size) <= 2)
+
+    # 3) --- 신규 → 운영진 (slack 허용) ---
     slack_newadm = [mdl.NewIntVar(0, n, f'slack_na_{g}') for g in Gs]
     for g in Gs:
         adm_cnt = mdl.NewIntVar(0, n, f'adm_{g}')
         new_cnt = mdl.NewIntVar(0, n, f'new_{g}')
         mdl.Add(adm_cnt == sum(admin[i] * x[i, g] for i in I))
         mdl.Add(new_cnt == sum(new[i]   * x[i, g] for i in I))
-        # 운영진 + slack ≥ 신규
-        mdl.Add(adm_cnt + slack_newadm[g] >= new_cnt)
+        mdl.Add(adm_cnt + slack_newadm[g] >= new_cnt)   # slack으로 부족분 보완
 
-    # ===== 4) f-조건 (최근 2회 같은 그룹 피하기) =====
+    # 4) --- f-조건 (최근 2회 같은 그룹 피하기) ---
     f_pairs = []
     def same_recent(i, j):
         return (
             (prev1.iloc[i] and prev1.iloc[i] == prev1.iloc[j]) or
-            (prev2.iloc[i] and prev2.iloc[i] == prev2.iloc[j])
+            (prev2.iloc[i] and prev2.iloc[i] == prev2.iloc[j]) or
+            (prev3.iloc[i] and prev3.iloc[i] == prev3.iloc[j])
         )
     for i in I:
         for j in range(i + 1, n):
