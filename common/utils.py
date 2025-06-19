@@ -15,6 +15,9 @@ from openai import OpenAI
 import json
 from collections import OrderedDict
 import warnings
+from ortools.sat.python import cp_model
+import math
+
 
 warnings.filterwarnings("ignore")
 load_dotenv()
@@ -150,6 +153,7 @@ def extract_member_names(*image_paths):
     # names = ast.literal_eval(best)
     names = ast.literal_eval(raw)        # 문자열 → 실제 list
     names = list(dict.fromkeys(names))   # (선택) 중복 제거 & 순서 유지
+    print(names)
     return names
 
 
@@ -203,125 +207,253 @@ def load_today(df, today: str) -> pd.DataFrame:
 
 
 # -------------------- 최적화 모델 생성 --------------------
+# def choose_group_count(n):
+    # """
+    # n명 참석 시 4·3인 그룹 배치를 위한 최소 그룹 수와
+    # 허용되는 3인 그룹 개수 k (k ≤ 2) 를 반환.
+    # """
+    # # print(f'{n=}')
+    # g = math.ceil(n / 4)          # 우선 4명 기준 최소 그룹 수
+    # while True:
+    #     # print(g)
+    #     three_groups = (4 * g) - n  # 3명 그룹 개수 (4명 그룹 g−three_groups)
+    #     if 0 <= three_groups <= 3:
+    #         # print(f'{g=}')
+    #         # print(f'{three_groups=}')
+    #         return g, three_groups
+    #     g += 1                    # 그룹 수를 늘려서 three_groups 감소
 
-from ortools.sat.python import cp_model
-import math
-from collections import OrderedDict
+# def build_groups_cpsat(df):
+    # n = len(df)
+    # G, three_max = choose_group_count(n)
+    # if three_max > 2: G += 1; three_max = 4*G - n
+    # I, Gs = range(n), range(G)
+
+    # admin  = df.is_admin.astype(int).tolist()
+    # leader = (df.is_admin | (df.english=='상')).astype(int).tolist()
+    # new    = df.is_new.astype(int).tolist()
+    # male   = (df.gender=='M').astype(int).tolist()
+    # p1,p2,p3  = df.get('prev_group_code1',''), df.get('prev_group_code2',''), df.get('prev_group_code3','')
+
+    # mdl = cp_model.CpModel()
+    # x   = {(i,g): mdl.NewBoolVar(f'x_{i}_{g}') for i in I for g in Gs}
+
+    # # 0.  ***이름 단위 중복 방지 제약 추가***  ← 새 코드
+    # name_to_rows = df.groupby('name').groups      # {'김OO': [0,7], '이OO': [3], ...}
+    # for rows in name_to_rows.values():
+    #     if len(rows) > 1:                         # 동일 이름이 여러 행
+    #         mdl.Add(sum(x[i,g] for i in rows for g in Gs) <= 1)
+
+    # # ① 모든 인원(행) 한 그룹
+    # for i in I:
+    #     mdl.Add(sum(x[i,g] for g in Gs) == 1)
+
+    # # # ① 모든 인원 한 그룹
+    # # for i in I: mdl.Add(sum(x[i,g] for g in Gs) == 1)
+
+    # # ② 그룹 크기
+    # sizes = {}
+    # for g in Gs:
+    #     sizes[g] = mdl.NewIntVar(3,4,f'sz_{g}')
+    #     mdl.Add(sizes[g] == sum(x[i,g] for i in I))
+    # mdl.Add(sum((4-sizes[g]) for g in Gs) <= 2)   # 3명 그룹 ≤2
+
+    # # ③ 리더
+    # for g in Gs:
+    #     mdl.Add(sum(leader[i]*x[i,g] for i in I) >= 1)
+
+    # # ④ 신규→운영진
+    # for g in Gs:
+    #     mdl.Add(sum(admin[i]*x[i,g] for i in I) * n >=
+    #             sum(new[i]*x[i,g] for i in I))
+
+    # # ⑤ f-조건
+    # def same(i,j):
+    #     return (
+    #             (bool(p1.iloc[i]) and p1.iloc[i]==p1.iloc[j]) or
+    #             (bool(p2.iloc[i]) and p2.iloc[i]==p2.iloc[j]) or
+    #             (bool(p3.iloc[i]) and p3.iloc[i]==p3.iloc[j])
+    #             )
+    # for i in I:
+    #     for j in range(i+1,n):
+    #         if same(i,j):
+    #             for g in Gs:
+    #                 mdl.Add(x[i,g] + x[j,g] <= 1)
+
+    # # ---- 목적함수: 4명 맞추기 > 성비 ----
+    # dev_sz  = [mdl.NewIntVar(0,1,f'dsz_{g}') for g in Gs]
+    # dev_m   = [mdl.NewIntVar(0,n,f'dm_{g}')  for g in Gs]
+    # # print(f'sum male: {sum(male)}')
+    # # print(f'G: {G}')
+    # avg_m   = sum(male)//G
+    # for g in Gs:
+    #     mdl.Add(dev_sz[g] == 4 - sizes[g])
+    #     mcnt = mdl.NewIntVar(0,n,f'mcnt_{g}')
+    #     mdl.Add(mcnt == sum(male[i]*x[i,g] for i in I))
+    #     mdl.Add(dev_m[g] >= mcnt - avg_m)
+    #     mdl.Add(dev_m[g] >= avg_m - mcnt)
+
+    # mdl.Minimize(
+    #     50_000*sum(dev_sz) +
+    #     5_000*sum(dev_m)
+    # )
+
+    # solver = cp_model.CpSolver()
+    # solver.parameters.max_time_in_seconds = 120
+    # solver.parameters.num_search_workers = 8
+    # status = solver.Solve(mdl)
+
+    # groups = {g: [] for g in Gs}
+    # for i in I:
+    #     for g in Gs:
+    #         if solver.Value(x[i,g]): groups[g].append(i)
+
+    # def key(idx): return (-admin[idx], -(df.iloc[idx].english=='상'), idx)
+    # out = OrderedDict()
+    # for g in sorted(groups):
+    #     names = [df.iloc[i]['name'] for i in sorted(groups[g], key=key)]
+    #     out[f"Group {g+1}"] = names
+    # return out
+
+
+# ──────────────────────────────────────────────────────────────
+# 튜닝 가능한 가중치 (값이 클수록 더 중요한 조건)
+W_SIZE   = 10000    # ② 그룹 인원 dev(|size-4|)
+W_NEWADM =  3000    # ③ 신규+운영진 slack
+W_FCOND  =   800    # ④ f-조건(최근 2회) 충돌
+W_LEADER =   200    # ⑤ 리더 부족 slack
+# ──────────────────────────────────────────────────────────────
+
+
 def choose_group_count(n):
-    """
-    n명 참석 시 4·3인 그룹 배치를 위한 최소 그룹 수와
-    허용되는 3인 그룹 개수 k (k ≤ 2) 를 반환.
-    """
-    # print(f'{n=}')
-    g = math.ceil(n / 4)          # 우선 4명 기준 최소 그룹 수
-    while True:
-        # print(g)
-        three_groups = (4 * g) - n  # 3명 그룹 개수 (4명 그룹 g−three_groups)
-        if 0 <= three_groups <= 3:
-            # print(f'{g=}')
-            # print(f'{three_groups=}')
-            return g, three_groups
-        g += 1                    # 그룹 수를 늘려서 three_groups 감소
+    """4명·3명 그룹 중심(3명 그룹 ≤2개)을 만족하는 최소 그룹 수 계산"""
+    g = math.ceil(n / 4)
+    while (4 * g - n) > 2:   # 3명 그룹이 세 개 이상이면 그룹 하나 늘림
+        g += 1
+    return g
 
-def build_groups_cpsat(df):
+
+def build_groups(df, timelimit=60, workers=8):
     n = len(df)
-    G, three_max = choose_group_count(n)
-    if three_max > 2: G += 1; three_max = 4*G - n
+    G = choose_group_count(n)
     I, Gs = range(n), range(G)
 
-    admin  = df.is_admin.astype(int).tolist()
-    leader = (df.is_admin | (df.english=='상')).astype(int).tolist()
-    new    = df.is_new.astype(int).tolist()
-    male   = (df.gender=='M').astype(int).tolist()
-    p1,p2,p3  = df.get('prev_group_code1',''), df.get('prev_group_code2',''), df.get('prev_group_code3','')
+    # 특성 추출
+    admin  = df['is_admin'].astype(int).tolist()
+    leader = (df['is_admin'] | (df['english'] == '상')).astype(int).tolist()
+    new    = df['is_new'].astype(int).tolist()
+    male   = (df['gender'] == 'M').astype(int).tolist()
+    eng_lv = df['english'].map({'상': 2, '중': 1, '하': 0}).tolist()
+    prev1  = df.get('prev_group_code1', '')
+    prev2  = df.get('prev_group_code2', '')
 
     mdl = cp_model.CpModel()
-    x   = {(i,g): mdl.NewBoolVar(f'x_{i}_{g}') for i in I for g in Gs}
+    x   = {(i, g): mdl.NewBoolVar(f'x_{i}_{g}') for i in I for g in Gs}
 
-    # 0.  ***이름 단위 중복 방지 제약 추가***  ← 새 코드
-    name_to_rows = df.groupby('name').groups      # {'김OO': [0,7], '이OO': [3], ...}
-    for rows in name_to_rows.values():
-        if len(rows) > 1:                         # 동일 이름이 여러 행
-            mdl.Add(sum(x[i,g] for i in rows for g in Gs) <= 1)
+    # ===== 0) 이름 중복 절대 금지 =====
+    for rows in df.groupby('name').groups.values():
+        if len(rows) > 1:
+            mdl.Add(sum(x[i, g] for i in rows for g in Gs) <= 1)
 
-    # ① 모든 인원(행) 한 그룹
+    # ===== 1) 각 행(개인) 정확히 한 그룹 =====
     for i in I:
-        mdl.Add(sum(x[i,g] for g in Gs) == 1)
+        mdl.Add(sum(x[i, g] for g in Gs) == 1)
 
-    # # ① 모든 인원 한 그룹
-    # for i in I: mdl.Add(sum(x[i,g] for g in Gs) == 1)
+    # ===== 2) 그룹 인원 =====
+    size      = [mdl.NewIntVar(2, 5, f'size_{g}') for g in Gs]
+    dev_size  = [mdl.NewIntVar(0, 3, f'devsz_{g}') for g in Gs]
+    three_cnt = mdl.NewIntVar(0, 2, 'three_cnt')        # 3명 그룹 ≤ 2
 
-    # ② 그룹 크기
-    sizes = {}
     for g in Gs:
-        sizes[g] = mdl.NewIntVar(3,4,f'sz_{g}')
-        mdl.Add(sizes[g] == sum(x[i,g] for i in I))
-    mdl.Add(sum((4-sizes[g]) for g in Gs) <= 2)   # 3명 그룹 ≤2
-
-    # ③ 리더
+        mdl.Add(size[g] == sum(x[i, g] for i in I))
+        mdl.Add(dev_size[g] >=  size[g] - 4)
+        mdl.Add(dev_size[g] >= -size[g] + 4)
+        # size == 3 → dev==1 → (4-size)==1로 집계
+        mdl.Add(size[g] == 3).OnlyEnforceIf(dev_size[g] == 1)
+    mdl.Add(three_cnt == sum(mdl.NewBoolVar(f'is_three_{g}')
+                            for g in Gs))
+    # (is_three == 1) ⇔ size == 3
     for g in Gs:
-        mdl.Add(sum(leader[i]*x[i,g] for i in I) >= 1)
+        is_three = mdl.NewBoolVar(f'is_three_{g}')
+        mdl.Add(size[g] == 3).OnlyEnforceIf(is_three)
+        mdl.Add(size[g] != 3).OnlyEnforceIf(is_three.Not())
+    mdl.Add(three_cnt <= 2)
 
-    # ④ 신규→운영진
+    # ===== 3) 신규 → 운영진 (slack 허용) =====
+    slack_newadm = [mdl.NewIntVar(0, n, f'slack_na_{g}') for g in Gs]
     for g in Gs:
-        mdl.Add(sum(admin[i]*x[i,g] for i in I) * n >=
-                sum(new[i]*x[i,g] for i in I))
+        adm_cnt = mdl.NewIntVar(0, n, f'adm_{g}')
+        new_cnt = mdl.NewIntVar(0, n, f'new_{g}')
+        mdl.Add(adm_cnt == sum(admin[i] * x[i, g] for i in I))
+        mdl.Add(new_cnt == sum(new[i]   * x[i, g] for i in I))
+        # 운영진 + slack ≥ 신규
+        mdl.Add(adm_cnt + slack_newadm[g] >= new_cnt)
 
-    # ⑤ f-조건
-    def same(i,j):
+    # ===== 4) f-조건 (최근 2회 같은 그룹 피하기) =====
+    f_pairs = []
+    def same_recent(i, j):
         return (
-                (bool(p1.iloc[i]) and p1.iloc[i]==p1.iloc[j]) or
-                (bool(p2.iloc[i]) and p2.iloc[i]==p2.iloc[j]) or
-                (bool(p3.iloc[i]) and p3.iloc[i]==p3.iloc[j])
-                )
+            (prev1.iloc[i] and prev1.iloc[i] == prev1.iloc[j]) or
+            (prev2.iloc[i] and prev2.iloc[i] == prev2.iloc[j])
+        )
     for i in I:
-        for j in range(i+1,n):
-            if same(i,j):
+        for j in range(i + 1, n):
+            if same_recent(i, j):
                 for g in Gs:
-                    mdl.Add(x[i,g] + x[j,g] <= 1)
+                    p = mdl.NewBoolVar(f'f_{i}_{j}_{g}')
+                    mdl.Add(p <= x[i, g])
+                    mdl.Add(p <= x[j, g])
+                    mdl.Add(p >= x[i, g] + x[j, g] - 1)
+                    f_pairs.append(p)
 
-    # ---- 목적함수: 4명 맞추기 > 성비 ----
-    dev_sz  = [mdl.NewIntVar(0,1,f'dsz_{g}') for g in Gs]
-    dev_m   = [mdl.NewIntVar(0,n,f'dm_{g}')  for g in Gs]
-    # print(f'sum male: {sum(male)}')
-    # print(f'G: {G}')
-    avg_m   = sum(male)//G
+    # ===== 5) 리더 부족 slack =====
+    slack_leader = [mdl.NewBoolVar(f'slack_lead_{g}') for g in Gs]
     for g in Gs:
-        mdl.Add(dev_sz[g] == 4 - sizes[g])
-        mcnt = mdl.NewIntVar(0,n,f'mcnt_{g}')
-        mdl.Add(mcnt == sum(male[i]*x[i,g] for i in I))
-        mdl.Add(dev_m[g] >= mcnt - avg_m)
-        mdl.Add(dev_m[g] >= avg_m - mcnt)
+        mdl.Add(sum(leader[i] * x[i, g] for i in I) + slack_leader[g] >= 1)
 
+    # ===== 목적함수 (가중치로 우선순위 반영) =====
     mdl.Minimize(
-        50_000*sum(dev_sz) +
-        5_000*sum(dev_m)
+          W_SIZE   * sum(dev_size) +
+          W_NEWADM * sum(slack_newadm) +
+          W_FCOND  * sum(f_pairs) +
+          W_LEADER * sum(slack_leader)
     )
 
+    # ===== 풀기 =====
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 120
-    solver.parameters.num_search_workers = 8
+    solver.parameters.max_time_in_seconds = timelimit
+    solver.parameters.num_search_workers = workers
     status = solver.Solve(mdl)
+    if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        raise RuntimeError("No feasible solution in time limit.")
 
-    groups = {g: [] for g in Gs}
+    # ===== 결과 정리 =====
+    raw_groups = {g: [] for g in Gs}
     for i in I:
         for g in Gs:
-            if solver.Value(x[i,g]): groups[g].append(i)
+            if solver.Value(x[i, g]):
+                raw_groups[g].append(i)
 
-    def key(idx): return (-admin[idx], -(df.iloc[idx].english=='상'), idx)
-    out = OrderedDict()
-    for g in sorted(groups):
-        names = [df.iloc[i]['name'] for i in sorted(groups[g], key=key)]
-        out[f"Group {g+1}"] = names
-    return out
+    # 그룹 내부 정렬 : 운영진 ▶ 영어 '상' ▶ 기타
+    def in_key(idx):
+        return (-admin[idx], -(df.iloc[idx]['english'] == '상'), idx)
+
+    ordered = OrderedDict()
+    for g in sorted(raw_groups):
+        ordered[f"Group {g + 1}"] = [
+            df.iloc[i]['name'] for i in sorted(raw_groups[g], key=in_key)
+        ]
+    return ordered
 
 
 def print_output(TODAY, grp_dict):
     print(f"▶ {TODAY} 그룹 편성 결과")
+    members_count = 0
     for k, members in grp_dict.items():
         print(f"{k} ({len(members)}명) : {', '.join(members)}")
+        members_count += members
+    print(f"총 멤버 수: {members_count}명명")
     return
-
 
 
 def save_updated_attendance(txt):
