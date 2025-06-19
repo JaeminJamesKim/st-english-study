@@ -497,5 +497,5 @@ def save_updated_attendance(txt):
 def check_missing_member(curr_participants, member_name_lst):
     missing_members = [x for x in curr_participants if x not in member_name_lst]
     if len(missing_members)==0:
-        missing_members = '없음'
+        missing_members = ['없음']
     return missing_members
