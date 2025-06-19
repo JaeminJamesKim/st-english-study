@@ -452,7 +452,7 @@ def print_output(TODAY, grp_dict):
     for k, members in grp_dict.items():
         print(f"{k} ({len(members)}명) : {', '.join(members)}")
         members_count += members
-    print(f"총 멤버 수: {members_count}명명")
+    print(f"총 멤버 수: {members_count}명")
     return
 
 
