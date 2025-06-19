@@ -38,8 +38,10 @@ def main(TODAY, imgs, driver):
     # grp_dict = build_groups_cpsat(today_df)
     grp_dict = build_groups(today_df)
     # print(f'{grp_dict=}')
-    output = print_output(TODAY, grp_dict)
-    return grp_dict, new_members, resigned_members
+    member_name_lst = print_output(TODAY, grp_dict)
+    missing_members = [x for x in curr_participants if x not in member_name_lst]
+
+    return grp_dict, new_members, resigned_members, missing_members
 
 
 

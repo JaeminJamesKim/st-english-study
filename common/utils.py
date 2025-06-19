@@ -448,12 +448,14 @@ def build_groups(df, timelimit=60, workers=8):
 
 def print_output(TODAY, grp_dict):
     print(f"▶ {TODAY} 그룹 편성 결과")
-    members_count = 0
+    member_count = 0
+    member_name_lst = []
     for k, members in grp_dict.items():
         print(f"{k} ({len(members)}명) : {', '.join(members)}")
-        members_count += members
-    print(f"총 멤버 수: {members_count}명")
-    return
+        member_count += len(members)
+        member_name_lst.append(members)
+    print(f"총 멤버 수: {member_count}명")
+    return [item for sublist in member_name_lst for item in sublist]
 
 
 def save_updated_attendance(txt):
