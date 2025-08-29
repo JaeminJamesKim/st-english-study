@@ -94,8 +94,7 @@ def compare_and_update_member_list_excel(curr_member_name_lst):
         if member_name not in member_list['name']:
             member_list.loc[len(member_list)] = [member_name, 'M', 0, '하', False]
     member_list = member_list[member_list["name"].isin(curr_member_name_lst)].reset_index(drop=True)
-    ########## 릴리즈 시 주석 해제 ##########
-    # member_list.to_excel('member_list.xlsx')
+    member_list.to_excel('member_list.xlsx') #TODO Check for Release
     
     print('>> [UPDATE COMPLETE] member_list.xlsx')
     return new_members, resigned_members
