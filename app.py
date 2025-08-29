@@ -169,8 +169,7 @@ with tab3:
         st.divider()
         st.write(f"▶ 현재 전체 멤버")
         st.write(updated_total_members)
-        df = pd.DataFrame(updated_total_members)
-        st.dataframe(df, use_container_width=True)
+
 
 
     
