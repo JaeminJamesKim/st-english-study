@@ -47,8 +47,8 @@ guide_text = """
 * 소모임 어플에서 참여 멤버 리스트를 캡쳐 후, 아래에서 이미지들을 업로드 해주세요. \n \n
 * 1부, 2부 종료 시, 반드시 각각 Update Attendance를 실행해 주세요. \n
 ex) \n
-* [1부] 멤버 리스트 캡쳐 및 업로드 -> 1부 Randomizer 실행 -> 1부 종료 -> Update Attendance \n
-* [2부] 멤버 리스트 업로드 -> 2부 Randomizer 실행 -> 2부 종료 --> Update Attendance \n
+* [1부] 멤버 리스트 캡쳐 및 업로드 -> 1부 Randomizer 실행 -> 1부 세션 종료 후 -> Update Attendance \n
+* [2부] 멤버 리스트 업로드 -> 2부 Randomizer 실행 -> 2부 세션 종료 후 -> Update Attendance \n
 """
 def stream_data():
     for word in guide_text.split(" "):
