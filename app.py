@@ -33,13 +33,15 @@ def get_driver():
 driver = get_driver()
 
 # Create a connection object.
-credentials = service_account.Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"],
-    scopes=[
-        "https://www.googleapis.com/auth/spreadsheets",
-    ],
-)
-gc = gspread.authorize(credentials)
+# credentials = service_account.Credentials.from_service_account_info(
+#     st.secrets["gcp_service_account"],
+#     scopes=[
+#         "https://www.googleapis.com/auth/spreadsheets",
+#     ],
+# )
+# gc = gspread.authorize(credentials)
+gc = "testing"
+
 
 st.markdown("""
 <style>
@@ -154,21 +156,21 @@ with tab2:
 with tab3:
     with st.spinner("Wait for it...", show_time=True):
         sheet_url = st.secrets["memberlist_url"]
-        sheet = gc.open_by_url(sheet_url)
-        
-
-        st.write(updated_total_members)
-        # new_members, resigned_members, updated_total_members = update_member_list(date, file_list, driver, gc)
-        # new_member_list = (", ".join(new_members))
-        # resigned_members = (", ".join(resigned_members))
-        # st.write(f"▶ {date} 멤버 리스트 업데이트 완료")
-        # st.write(f"신규 멤버: {new_member_list}")
-        # st.write(f"탈퇴 멤버: {resigned_members}")
-        # st.divider()
-        # st.write(f"▶ 현재 전체 멤버")
+        # sheet = gc.open_by_url(sheet_url)
         # st.write(updated_total_members)
-        # df = pd.DataFrame(updated_total_members)
-        # st.dataframe(df, use_container_width=True)
+
+
+        new_members, resigned_members, updated_total_members = update_member_list(date, file_list, driver, gc)
+        new_member_list = (", ".join(new_members))
+        resigned_members = (", ".join(resigned_members))
+        st.write(f"▶ {date} 멤버 리스트 업데이트 완료")
+        st.write(f"신규 멤버: {new_member_list}")
+        st.write(f"탈퇴 멤버: {resigned_members}")
+        st.divider()
+        st.write(f"▶ 현재 전체 멤버")
+        st.write(updated_total_members)
+        df = pd.DataFrame(updated_total_members)
+        st.dataframe(df, use_container_width=True)
 
 
     
