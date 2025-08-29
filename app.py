@@ -168,8 +168,9 @@ with tab3:
         st.write(f"탈퇴 멤버: {resigned_members}")
         st.divider()
         st.write(f"▶ 현재 전체 멤버")
-        st.write(updated_total_members)
-
+        # st.write(updated_total_members)
+        df = pd.DataFrame(updated_total_members)
+        st.dataframe(df, use_container_width=True)
 
 
     
