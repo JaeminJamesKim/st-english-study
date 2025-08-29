@@ -6,7 +6,7 @@ import os
 import time
 import streamlit as st
 from datetime import datetime
-from main import main
+from main import main, update_member_list
 from common.utils import save_updated_attendance, compare_and_update_member_list_excel
 from PIL import Image
 
@@ -71,7 +71,7 @@ if st.button(f" :sunglasses: **[ Randomizer 사용 가이드 *Click Here* ]** :s
 st.divider()
 
 
-tab1, tab2 = st.tabs(["Group Randomizer", "Update Attendance"])
+tab1, tab2, tab3 = st.tabs(["Group Randomizer", "Update Attendance", "Current Members"])
 
 # 조 랜덤 편성
 with tab1:
@@ -94,7 +94,7 @@ with tab1:
         st.divider()
         st.write(f" ")
         with st.spinner("Wait for it...", show_time=True):
-            grp_dict, new_members, resigned_members, missing_members = main(date, file_list, driver)
+            grp_dict, new_members, resigned_members, missing_members, updated_total_members = main(date, file_list, driver)
             new_member_list = (", ".join(new_members))
             resigned_members = (", ".join(resigned_members))
             missing_members = (", ".join(missing_members))
@@ -137,6 +137,19 @@ with tab2:
     if st.session_state.confirm:
         save_updated_attendance(txt)
         st.success('[Update Complete!')
+
+# 현재 모임 멤버 이름(아이디) 확인
+with tab3:
+    with st.spinner("Wait for it...", show_time=True):
+        new_members, resigned_members, updated_total_members = update_member_list(date, file_list, driver)
+        new_member_list = (", ".join(new_members))
+        resigned_members = (", ".join(resigned_members))
+        st.write(f"▶ {date} 멤버 리스트 업데이트 완료")
+        st.write(f"신규 멤버: {new_member_list}")
+        st.write(f"탈퇴 멤버: {resigned_members}")
+        st.divider()
+        st.write(f"▶ 현재 전체 멤버")
+        st.dataframe(updated_total_members, use_container_width=True)
 
 
     

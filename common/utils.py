@@ -97,7 +97,7 @@ def compare_and_update_member_list_excel(curr_member_name_lst):
     member_list.to_excel('member_list.xlsx') #TODO Check for Release
     
     print('>> [UPDATE COMPLETE] member_list.xlsx')
-    return new_members, resigned_members
+    return new_members, resigned_members, member_list
 
 def _as_data_url(path: str) -> str:
     """파일을 data:<mime>;base64,<b64> 형태로 변환"""
