@@ -10,6 +10,9 @@ from main import main, update_member_list
 from common.utils import save_updated_attendance, compare_and_update_member_list_excel
 from PIL import Image
 
+from google.oauth2 import service_account
+import gspread
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -28,6 +31,15 @@ def get_driver():
     return driver
 
 driver = get_driver()
+
+# Create a connection object.
+credentials = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"],
+    scopes=[
+        "https://www.googleapis.com/auth/spreadsheets",
+    ],
+)
+gc = gspread.authorize(credentials)
 
 st.markdown("""
 <style>
@@ -94,7 +106,7 @@ with tab1:
         st.divider()
         st.write(f" ")
         with st.spinner("Wait for it...", show_time=True):
-            grp_dict, new_members, resigned_members, missing_members, updated_total_members = main(date, file_list, driver)
+            grp_dict, new_members, resigned_members, missing_members, updated_total_members = main(date, file_list, driver, gc)
             new_member_list = (", ".join(new_members))
             resigned_members = (", ".join(resigned_members))
             missing_members = (", ".join(missing_members))
@@ -141,17 +153,22 @@ with tab2:
 # 현재 모임 멤버 이름(아이디) 확인
 with tab3:
     with st.spinner("Wait for it...", show_time=True):
-        new_members, resigned_members, updated_total_members = update_member_list(date, file_list, driver)
-        new_member_list = (", ".join(new_members))
-        resigned_members = (", ".join(resigned_members))
-        st.write(f"▶ {date} 멤버 리스트 업데이트 완료")
-        st.write(f"신규 멤버: {new_member_list}")
-        st.write(f"탈퇴 멤버: {resigned_members}")
-        st.divider()
-        st.write(f"▶ 현재 전체 멤버")
+        sheet_url = st.secrets["https://docs.google.com/spreadsheets/d/1v3cYnsu9HHd-mjpO8TAPieUtX6I9MdH0/edit?usp=sharing&ouid=117604843222281902856&rtpof=true&sd=true"]
+        sheet = gc.open_by_url(sheet_url)
+        
+
         st.write(updated_total_members)
-        df = pd.DataFrame(updated_total_members)
-        st.dataframe(df, use_container_width=True)
+        # new_members, resigned_members, updated_total_members = update_member_list(date, file_list, driver, gc)
+        # new_member_list = (", ".join(new_members))
+        # resigned_members = (", ".join(resigned_members))
+        # st.write(f"▶ {date} 멤버 리스트 업데이트 완료")
+        # st.write(f"신규 멤버: {new_member_list}")
+        # st.write(f"탈퇴 멤버: {resigned_members}")
+        # st.divider()
+        # st.write(f"▶ 현재 전체 멤버")
+        # st.write(updated_total_members)
+        # df = pd.DataFrame(updated_total_members)
+        # st.dataframe(df, use_container_width=True)
 
 
     

@@ -17,12 +17,12 @@ from collections import OrderedDict
 import warnings
 from ortools.sat.python import cp_model
 import math
-
+from google.oauth2 import service_account
+import gspread
 
 warnings.filterwarnings("ignore")
 load_dotenv()
 client = OpenAI()                     # 환경변수 OPENAI_API_KEY 사용
-
 
 def get_current_all_members(driver):
     '''
@@ -82,7 +82,7 @@ def get_current_all_members(driver):
     return board_member_lst, member_name_lst
 
 # 성별을 수동으로 업데이트 해줘야함: Default 'M'으로 설정
-def compare_and_update_member_list_excel(curr_member_name_lst):
+def compare_and_update_member_list_excel(curr_member_name_lst, gc):
     member_list = pd.read_excel('member_list.xlsx')
     new_members = [n for n in curr_member_name_lst if n not in set(member_list["name"])]
     resigned_members = [n for n in member_list["name"] if n not in set(curr_member_name_lst)]
@@ -169,7 +169,7 @@ import pulp
 
 
 # -------------------- 이번 주 인원 출석 데이터에 병합하기 --------------------
-def update_attendance(TODAY, curr_participants):
+def update_attendance(TODAY, curr_participants, gc):
     member_list = pd.read_excel('member_list.xlsx')
     curr_participant_info_list = member_list.loc[(member_list['name']).isin(curr_participants)]
     curr_participant_info_list["attend_date"] = TODAY

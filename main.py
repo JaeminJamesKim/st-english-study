@@ -23,7 +23,7 @@ from common.utils import *
 
 
 
-def main(TODAY, imgs, driver):
+def main(TODAY, imgs, driver, gc):
     ## 소모임 전체 멤버 리스트 가져오기 (운영진, 전체 멤버)
     board_members, total_members = get_current_all_members(driver)
     ## 전체 멤버 리스트 업데이트하고 신규멤버 반환
@@ -31,7 +31,7 @@ def main(TODAY, imgs, driver):
     ## 이번 모임 출석 멤버 input (from captures)
     curr_participants = extract_member_names(*imgs)
     # print(f'{curr_participants=}')
-    attendance_df = update_attendance(TODAY, curr_participants)
+    attendance_df = update_attendance(TODAY, curr_participants, gc)
     # print(f'{attendance_df=}')
     today_df = load_today(attendance_df, TODAY)
     # print(f'{today_df=}')
@@ -45,11 +45,11 @@ def main(TODAY, imgs, driver):
     return grp_dict, new_members, resigned_members, missing_members, updated_total_members
 
 
-def update_member_list(TODAY, imgs, driver):
+def update_member_list(TODAY, imgs, driver, gc):
     ## 소모임 전체 멤버 리스트 가져오기 (운영진, 전체 멤버)
     board_members, total_members = get_current_all_members(driver)
     ## 전체 멤버 리스트 업데이트하고 신규멤버 반환
-    new_members, resigned_members, updated_total_members = compare_and_update_member_list_excel(total_members)
+    new_members, resigned_members, updated_total_members = compare_and_update_member_list_excel(total_members, gc)
 
     return new_members, resigned_members, updated_total_members
 
