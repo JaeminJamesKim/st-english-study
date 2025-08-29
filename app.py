@@ -64,7 +64,7 @@ if st.button(f" :sunglasses: **[ Randomizer 사용 가이드 *Click Here* ]** :s
         st.write(f" 3) 마스킹 처리된 캡처 이미지로 Randomizer 실행")
         st.write(f" ")
     with st.expander("* 2부만 참여하는 인원 있을경우 "):
-        st.write(f" 1) 캡처 이미지에서 스티커나 그리기 도구로 이름 가리고 나서 Randomizer 실행")
+        st.write(f" 1) 캡처 이미지에서 스티커나 그리기 도구로 [2부 only 멤버 이름들] 가리고 나서 Randomizer 실행")
         st.write(f" 2) 1부 끝나고 Update Attendance에서 출석 업데이트 후,")
         st.write(f" 3) 마스킹 안된 원본 이미지로 Randomizer 실행")
         st.write(f" ")
