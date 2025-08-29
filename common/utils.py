@@ -39,7 +39,7 @@ def get_current_all_members(driver):
     driver.get(page_url)
     # driver.close()
     # driver.quit()
-    time.sleep(5)
+    time.sleep(2)
 
     # ————— click your button —————
     wait = WebDriverWait(driver, 10)
