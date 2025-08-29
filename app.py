@@ -153,7 +153,7 @@ with tab2:
 # 현재 모임 멤버 이름(아이디) 확인
 with tab3:
     with st.spinner("Wait for it...", show_time=True):
-        sheet_url = st.secrets["https://docs.google.com/spreadsheets/d/1v3cYnsu9HHd-mjpO8TAPieUtX6I9MdH0/edit?usp=sharing&ouid=117604843222281902856&rtpof=true&sd=true"]
+        sheet_url = st.secrets["memberlist_url"]
         sheet = gc.open_by_url(sheet_url)
         
 
