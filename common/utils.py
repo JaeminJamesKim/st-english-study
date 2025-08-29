@@ -93,7 +93,7 @@ def compare_and_update_member_list_excel(curr_member_name_lst, gc):
     for member_name in curr_member_name_lst:
         if member_name not in member_list['name']:
             print(f"{member_list=}")
-            member_list.loc[len(member_list)] = [member_name, 'M', 0, '하', False]
+            member_list.loc[len(member_list)] = [len(member_list), member_name, 'M', 0, '하', False]
     member_list = member_list[member_list["name"].isin(curr_member_name_lst)].reset_index(drop=True)
     member_list.to_excel('member_list.xlsx') #TODO Check for Release
     
